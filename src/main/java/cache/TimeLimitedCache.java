@@ -4,7 +4,7 @@ import elements.Key;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public class Cache<K, V> {
+public class TimeLimitedCache<K, V> {  //extends abstract
     private ConcurrentHashMap<Key, V> cacheMap = new ConcurrentHashMap<>();
     private static long DEFAULT_TIMEOUT = 36000000;
     private long timeout;
@@ -17,25 +17,24 @@ public class Cache<K, V> {
         }
     });
 
-    public Cache()  throws Exception {
-        new Cache(DEFAULT_TIMEOUT);
+    public TimeLimitedCache()  throws Exception {
+        new TimeLimitedCache(DEFAULT_TIMEOUT);
     }
 
     /** Cache with defined objects lifetime
      * @param timeout number of milliseconds - time of keeping objects in cache
      */
-    public Cache(long timeout)  throws Exception {
+    public TimeLimitedCache(long timeout)  throws Exception {
         if (timeout < 100) {
             throw new Exception("Too short interval for storage in the cache. Interval should be more than 10 ms");
         }
         this.timeout = timeout;
         scheduler.scheduleAtFixedRate(new Runnable() {
-
             @Override
             public void run() {
-                long current = System.currentTimeMillis();
+                long currentTime = System.currentTimeMillis();
                 for (Key key : cacheMap.keySet()) {
-                    if (!key.isLive(current)) {
+                    if (!key.isLive(currentTime)) {
                         cacheMap.remove(key);
                     }
                 }
