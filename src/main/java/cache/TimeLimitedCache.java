@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 
 public class TimeLimitedCache<K, V> {  //extends abstract
     private ConcurrentHashMap<Key, V> cacheMap = new ConcurrentHashMap<>();
-    private static long DEFAULT_TIMEOUT = 36000000;
+    private static final long DEFAULT_TIMEOUT = 36000000;
     private long timeout;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
         @Override
@@ -103,7 +103,7 @@ public class TimeLimitedCache<K, V> {  //extends abstract
      * @param map map with new data
      */
     public void setAll(Map<K, V> map) {
-        ConcurrentHashMap tempmap = new ConcurrentHashMap<Key, V>();
+        ConcurrentHashMap<Key, V> tempmap = new ConcurrentHashMap<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
             tempmap.put(new Key(entry.getKey(), timeout), entry.getValue());
         }
