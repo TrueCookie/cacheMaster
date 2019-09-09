@@ -2,17 +2,17 @@ package elements;
 
 public class Key {
     private final Object key;
-    private final long timelife; //remove
-    private static final long DEFAULT_TIMELIFE = 86200000; //remove
+    private final long lifetime;
+    private static final long DEFAULT_LIFETIME = 86200000;
 
     public Key(Object key, long timeout){
         this.key = key;
-        this.timelife = System.currentTimeMillis() + timeout;
+        this.lifetime = System.currentTimeMillis() + timeout;
     }
 
     public Key(Object key) {
         this.key = key;
-        this.timelife = System.currentTimeMillis() + DEFAULT_TIMELIFE;
+        this.lifetime = System.currentTimeMillis() + DEFAULT_LIFETIME;
     }
 
     public Object getKey() {
@@ -20,7 +20,7 @@ public class Key {
     }
 
     public boolean isLive(long currentTimeMillis) {
-        return currentTimeMillis < timelife;
+        return currentTimeMillis < lifetime;
     }
 
     @Override
@@ -36,14 +36,7 @@ public class Key {
     }
 
     @Override
-    public int hashCode() { //how is it work
-        int hash = 42;
-        hash = 27 * hash + (this.key != null ? this.key.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public String toString() {  //remove?
+    public String toString() {
         return "Key{" + "key=" + key + '}';
     }
 

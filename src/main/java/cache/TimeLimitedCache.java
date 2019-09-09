@@ -4,7 +4,7 @@ import elements.Key;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public class TimeLimitedCache<K, V> {  //extends abstract
+public class TimeLimitedCache<K, V> {
     private ConcurrentHashMap<Key, V> cacheMap = new ConcurrentHashMap<>();
     private static final long DEFAULT_TIMEOUT = 36000000;
     private long timeout;
