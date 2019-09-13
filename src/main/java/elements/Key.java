@@ -1,18 +1,20 @@
 package elements;
 
+import java.util.Objects;
+
 public class Key {
     private final Object key;
-    private final long lifetime;
+    private final long deathTime;
     private static final long DEFAULT_LIFETIME = 86200000;
 
     public Key(Object key, long timeout){
         this.key = key;
-        this.lifetime = System.currentTimeMillis() + timeout;
+        this.deathTime = System.currentTimeMillis() + timeout;
     }
 
     public Key(Object key) {
         this.key = key;
-        this.lifetime = System.currentTimeMillis() + DEFAULT_LIFETIME;
+        this.deathTime = System.currentTimeMillis() + DEFAULT_LIFETIME;
     }
 
     public Object getKey() {
@@ -20,7 +22,7 @@ public class Key {
     }
 
     public boolean isLive(long currentTimeMillis) {
-        return currentTimeMillis < lifetime;
+        return currentTimeMillis < deathTime;
     }
 
     @Override
@@ -29,10 +31,17 @@ public class Key {
             return false;
         }
         final Key other = (Key) obj;
-        if (this.key != other.key && (this.key == null || !this.key.equals(other.key))) {
+        if (!Objects.equals(this.key, other.key)) {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 43 * hash + (this.key != null ? this.key.hashCode() : 0);
+        return hash;
     }
 
     @Override

@@ -8,14 +8,14 @@ public class TimeLimitedCache<K, V> {
     private ConcurrentHashMap<Key, V> cacheMap = new ConcurrentHashMap<>();
     private static final long DEFAULT_TIMEOUT = 36000000;
     private long timeout;
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+    private ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(/*new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread th = new Thread(r);
             th.setDaemon(true);
             return th;
         }
-    });
+    }*/);
 
     public TimeLimitedCache()  throws Exception {
         new TimeLimitedCache(DEFAULT_TIMEOUT);
@@ -25,15 +25,15 @@ public class TimeLimitedCache<K, V> {
      * @param timeout number of milliseconds - time of keeping objects in cache
      */
     public TimeLimitedCache(long timeout)  throws Exception {
-        if (timeout < 100) {
+        if (timeout < 100) {    //what's the difference between this timeout and deathTime in cache object?
             throw new Exception("Too short interval for storage in the cache. Interval should be more than 10 ms");
         }
         this.timeout = timeout;
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        cacheExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                for (Key key : cacheMap.keySet()) {
+                for (Key key : cacheMap.keySet()) { //where is the shedule cache call(debug)
                     if (!key.isLive(currentTime)) {
                         cacheMap.remove(key);
                     }
@@ -79,7 +79,7 @@ public class TimeLimitedCache<K, V> {
      * @return data object from the cache
      */
     public V get(K key) {
-        return cacheMap.get(new Key(key, timeout)); //Key(key)
+        return cacheMap.get(new Key(key));
     }
 
     /**
@@ -87,7 +87,7 @@ public class TimeLimitedCache<K, V> {
      * @param key - ключ
      */
     public void remove(K key) {
-        cacheMap.remove(new Key(key, timeout)); //Key(key)
+        cacheMap.remove(new Key(key));
     }
 
     /**
@@ -103,11 +103,11 @@ public class TimeLimitedCache<K, V> {
      * @param map map with new data
      */
     public void setAll(Map<K, V> map) {
-        ConcurrentHashMap<Key, V> tempmap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Key, V> tmpMap = new ConcurrentHashMap<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-            tempmap.put(new Key(entry.getKey(), timeout), entry.getValue());
+            tmpMap.put(new Key(entry.getKey(), timeout), entry.getValue());
         }
-        cacheMap = tempmap;
+        cacheMap = tmpMap;
     }
 
     /**
