@@ -5,11 +5,12 @@ import java.util.Objects;
 public class Key {
     private final Object key;
     private final long deathTime;
-    private static final long DEFAULT_LIFETIME = 86200000;
+    //private static final long DEFAULT_LIFETIME = 86200000;
+    private static final long DEFAULT_LIFETIME = 1000;
 
-    public Key(Object key, long timeout){
+    public Key(Object key, long lifetime){
         this.key = key;
-        this.deathTime = System.currentTimeMillis() + timeout;
+        this.deathTime = System.currentTimeMillis() + lifetime;
     }
 
     public Key(Object key) {
@@ -31,10 +32,7 @@ public class Key {
             return false;
         }
         final Key other = (Key) obj;
-        if (!Objects.equals(this.key, other.key)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.key, other.key);
     }
 
     @Override

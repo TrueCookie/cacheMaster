@@ -5,52 +5,59 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class TimeLimitedCache<K, V> {
-    private ConcurrentHashMap<Key, V> cacheMap = new ConcurrentHashMap<>();
-    private static final long DEFAULT_TIMEOUT = 36000000;
-    private long timeout;
-    private ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(/*new ThreadFactory() {
+    private ConcurrentHashMap<Key, V> cacheMap;
+    //private static final long DEFAULT_LIFETIME = 86200000;
+    private static final long DEFAULT_LIFETIME = 1000;
+    private long lifetime;
+    private ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
         @Override
-        public Thread newThread(Runnable r) {
-            Thread th = new Thread(r);
+        public Thread newThread(Runnable runnable) {
+            Thread th = new Thread(runnable);
             th.setDaemon(true);
             return th;
         }
-    }*/);
+    });;
 
     public TimeLimitedCache()  throws Exception {
-        new TimeLimitedCache(DEFAULT_TIMEOUT);
+        new TimeLimitedCache(DEFAULT_LIFETIME); //two constructors call provoke two instance of TimeLimitedCache=>lifetime = 0
     }
 
     /** Cache with defined objects lifetime
-     * @param timeout number of milliseconds - time of keeping objects in cache
+     * @param lifetime number of milliseconds - time of keeping objects in cache
      */
-    public TimeLimitedCache(long timeout)  throws Exception {
-        if (timeout < 100) {    //what's the difference between this timeout and deathTime in cache object?
+    public TimeLimitedCache(long lifetime)  throws Exception {
+        if (lifetime < 100) {
             throw new Exception("Too short interval for storage in the cache. Interval should be more than 10 ms");
         }
-        this.timeout = timeout;
-        cacheExecutor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                long currentTime = System.currentTimeMillis();
-                for (Key key : cacheMap.keySet()) { //where is the shedule cache call(debug)
-                    if (!key.isLive(currentTime)) {
-                        cacheMap.remove(key);
-                    }
+        cacheMap = new ConcurrentHashMap<>();
+        this.lifetime = lifetime;
+
+    }
+
+    public void runCacheExecutor(){
+        //long checkPeriod = this.lifetime/500;
+        cacheExecutor.scheduleAtFixedRate(() -> {
+            //System.out.println("CHECK: cacheExecutor is running");
+            long currentTime = System.currentTimeMillis();
+            for (Key key : cacheMap.keySet()) {
+                //System.out.println("CHECK: keys");
+                if (!key.isLive(currentTime)) {
+                    cacheMap.remove(key);
+                    System.out.println("CHECK: key removed");
                 }
             }
-        }, 1, timeout/5, TimeUnit.MILLISECONDS);
+        }, 1, 500, TimeUnit.MILLISECONDS);  //raw checkPeriod is available here
     }
 
 
     /**
      * @param timeout number of milliseconds object keeping in cache
      */
-    public void setDefault_timeout(long timeout) throws Exception {
+    public void setDefaultLifetime(long timeout) throws Exception {
         if (timeout < 100) {
             throw new Exception("Too short interval for storage in the cache. Interval should be more than 10 ms");
         }
-        this.timeout = timeout;
+        this.lifetime = timeout;
     }
 
     /**
@@ -60,7 +67,7 @@ public class TimeLimitedCache<K, V> {
      * @param data data contained by the object in the cache
      */
     public void put(K key, V data) {
-        cacheMap.put(new Key(key, timeout), data);
+        cacheMap.put(new Key(key, lifetime), data);
     }
 
     /**
@@ -105,7 +112,7 @@ public class TimeLimitedCache<K, V> {
     public void setAll(Map<K, V> map) {
         ConcurrentHashMap<Key, V> tmpMap = new ConcurrentHashMap<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-            tmpMap.put(new Key(entry.getKey(), timeout), entry.getValue());
+            tmpMap.put(new Key(entry.getKey(), lifetime), entry.getValue());    //at what point the lifetime turn into 0
         }
         cacheMap = tmpMap;
     }

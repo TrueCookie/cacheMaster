@@ -29,20 +29,19 @@ public class CacheTest extends TestCase {
     @Test
     public void testTimeLimitedCache() throws Exception
     {
-        TimeLimitedCache<Integer, Object> cache = new TimeLimitedCache<>();
+        TimeLimitedCache<Integer, Object> cache = new TimeLimitedCache<>(2000);
 
         cache.setAll(someMap);
-        assertTrue(someMap.containsKey(1010));  //key is a Key, so could get() find complex key
+        //cache.runCacheExecutor();
+
+        assertTrue(someMap.containsKey(1010));
         assertEquals(simpleStr1, cache.get(1010));
 
-        //cache.put(simpleStr3.hashCode(), simpleStr3);
-        //assertEquals(simpleStr3, cache.get(simpleStr3.hashCode()));
-        //assertEquals(simpleStr3, cache.get(simpleStr3.hashCode()));
-
+        cache.runCacheExecutor();
         cache.put(3030, simpleStr3, 1000);
-        Thread.sleep(500);
+        Thread.sleep(500);  //TODO: use lock instead of sleep
         assertNotNull(cache.get(3030));
-        Thread.sleep(1000);
+        Thread.sleep(3000);
         assertNull(cache.get(3030));
     }
 }

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="CacheTest" tests="1" skipped="1" failures="0" errors="0" timestamp="2019-09-13T09:21:48" hostname="unknownuser-X751SJ" time="2307.984">
+<testsuite name="CacheTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-09-15T13:49:59" hostname="unknownuser-X751SJ" time="3.538">
   <properties/>
-  <testcase name="testTimeLimitedCache" classname="CacheTest" time="2307.984">
-    <skipped/>
-  </testcase>
-  <system-out><![CDATA[]]></system-out>
+  <testcase name="testTimeLimitedCache" classname="CacheTest" time="3.538"/>
+  <system-out><![CDATA[CHECK: key removed
+CHECK: key removed
+CHECK: key removed
+]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
