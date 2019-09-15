@@ -6,21 +6,9 @@ import java.util.concurrent.*;
 
 public class TimeLimitedCache<K, V> {
     private ConcurrentHashMap<Key, V> cacheMap;
-    //private static final long DEFAULT_LIFETIME = 86200000;
-    private static final long DEFAULT_LIFETIME = 1000;
+    private static final long DEFAULT_LIFETIME = 86200000;
     private long lifetime;
-    private ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable runnable) {
-            Thread th = new Thread(runnable);
-            th.setDaemon(true);
-            return th;
-        }
-    });;
-
-    public TimeLimitedCache()  throws Exception {
-        new TimeLimitedCache(DEFAULT_LIFETIME); //two constructors call provoke two instance of TimeLimitedCache=>lifetime = 0
-    }
+    //private ScheduledExecutorService cacheExecutor;
 
     /** Cache with defined objects lifetime
      * @param lifetime number of milliseconds - time of keeping objects in cache
@@ -31,19 +19,27 @@ public class TimeLimitedCache<K, V> {
         }
         cacheMap = new ConcurrentHashMap<>();
         this.lifetime = lifetime;
+    }
 
+    public TimeLimitedCache()  throws Exception {
+        this(DEFAULT_LIFETIME);
     }
 
     public void runCacheExecutor(){
         //long checkPeriod = this.lifetime/500;
+        ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread th = new Thread(runnable);
+                th.setDaemon(true);
+                return th;
+            }
+        });
         cacheExecutor.scheduleAtFixedRate(() -> {
-            //System.out.println("CHECK: cacheExecutor is running");
             long currentTime = System.currentTimeMillis();
             for (Key key : cacheMap.keySet()) {
-                //System.out.println("CHECK: keys");
                 if (!key.isLive(currentTime)) {
                     cacheMap.remove(key);
-                    System.out.println("CHECK: key removed");
                 }
             }
         }, 1, 500, TimeUnit.MILLISECONDS);  //raw checkPeriod is available here
