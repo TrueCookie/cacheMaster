@@ -3,34 +3,34 @@ package cache;
 import elements.Key;
 
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
+/** Cache follows the LRU Cache Policy
+ */
 public class LRUCache<K, V> extends AbstractCache {
     private ConcurrentHashMap<Key, V> cacheMap;
+    private PriorityQueue<Key> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
+    private Integer maxSize;
 
-    /** Cache follows the LRU Cache Policy
-     */
     public LRUCache() throws Exception {
         cacheMap = new ConcurrentHashMap<>();
     }
     public void runCacheExecutor(){
-        //long checkPeriod = this.lifetime/500;
-        ScheduledExecutorService cacheExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                Thread th = new Thread(runnable);
-                th.setDaemon(true);
-                return th;
-            }
-        });
-        cacheExecutor.scheduleAtFixedRate(() -> {
-            long currentTime = System.currentTimeMillis();
-            for (Key key : cacheMap.keySet()) {
-                if (!key.isLive(currentTime)) {
-                    cacheMap.remove(key);
+        Thread cacheExecutor = new Thread(){
+            public void run(){
+                long currentTime = System.currentTimeMillis();
+                if (cacheMap.size() == maxSize) {
+                    Key removingKey = timePriorityQueue.extractMinValue();
+                    cacheMap.remove(removingKey);
+                }
+                for (Key key : cacheMap.keySet()) {
+                    if (!key.isLive(currentTime)) {
+                        cacheMap.remove(key);
+                    }
                 }
             }
-        }, 1, 500, TimeUnit.MILLISECONDS);  //raw checkPeriod is available here
+        };
     }
 
     /**
@@ -59,6 +59,13 @@ public class LRUCache<K, V> extends AbstractCache {
      * @return data object from the cache
      */
     public V get(K key) {
+        currentTime = getCurrentTime();
+        if (cacheMap.containsKey(key)) {
+            // Сначала обновим время последнего запроса к key
+            timePriorityQueue.set(key, currentTime);
+            //timePriorityQueue.set(key, curTime);
+            return cacheMap.get(new Key(key));
+        }
         return cacheMap.get(new Key(key));
     }
 

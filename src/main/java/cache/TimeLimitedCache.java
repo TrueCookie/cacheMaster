@@ -4,11 +4,12 @@ import elements.Key;
 import java.util.Map;
 import java.util.concurrent.*;
 
+//TODO: make the cache check itself once it's full
+//not once some period
 public class TimeLimitedCache<K, V> {
     private ConcurrentHashMap<Key, V> cacheMap;
     private static final long DEFAULT_LIFETIME = 86200000;
     private long lifetime;
-    //private ScheduledExecutorService cacheExecutor;
 
     /** Cache with defined objects lifetime
      * @param lifetime number of milliseconds - time of keeping objects in cache
