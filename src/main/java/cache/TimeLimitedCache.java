@@ -1,13 +1,13 @@
 package cache;
 
-import elements.Key;
+import key.TLKey;
 import java.util.Map;
 import java.util.concurrent.*;
 
 //TODO: make the cache check itself once it's full
 //not once some period
 public class TimeLimitedCache<K, V> {
-    private ConcurrentHashMap<Key, V> cacheMap;
+    private ConcurrentHashMap<TLKey, V> cacheMap;
     private static final long DEFAULT_LIFETIME = 86200000;
     private long lifetime;
 
@@ -38,7 +38,7 @@ public class TimeLimitedCache<K, V> {
         });
         cacheExecutor.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
-            for (Key key : cacheMap.keySet()) {
+            for (TLKey key : cacheMap.keySet()) {
                 if (!key.isLive(currentTime)) {
                     cacheMap.remove(key);
                 }
@@ -64,7 +64,7 @@ public class TimeLimitedCache<K, V> {
      * @param data data contained by the object in the cache
      */
     public void put(K key, V data) {
-        cacheMap.put(new Key(key, lifetime), data);
+        cacheMap.put(new TLKey(key, lifetime), data);
     }
 
     /**
@@ -74,7 +74,7 @@ public class TimeLimitedCache<K, V> {
      * @param timeout number of milliseconds object keeping in cache
      */
     public void put(K key, V data, long timeout) {
-        cacheMap.put(new Key(key, timeout), data);
+        cacheMap.put(new TLKey(key, timeout), data);
     }
 
     /**
@@ -83,7 +83,7 @@ public class TimeLimitedCache<K, V> {
      * @return data object from the cache
      */
     public V get(K key) {
-        return cacheMap.get(new Key(key));
+        return cacheMap.get(new TLKey(key));
     }
 
     /**
@@ -91,7 +91,7 @@ public class TimeLimitedCache<K, V> {
      * @param key - ключ
      */
     public void remove(K key) {
-        cacheMap.remove(new Key(key));
+        cacheMap.remove(new TLKey(key));
     }
 
     /**
@@ -107,9 +107,9 @@ public class TimeLimitedCache<K, V> {
      * @param map map with new data
      */
     public void setAll(Map<K, V> map) {
-        ConcurrentHashMap<Key, V> tmpMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<TLKey, V> tmpMap = new ConcurrentHashMap<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-            tmpMap.put(new Key(entry.getKey(), lifetime), entry.getValue());    //at what point the lifetime turn into 0
+            tmpMap.put(new TLKey(entry.getKey(), lifetime), entry.getValue());    //at what point the lifetime turn into 0
         }
         cacheMap = tmpMap;
     }

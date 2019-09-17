@@ -1,16 +1,17 @@
 package cache;
 
-import elements.Key;
+import key.Key;
+import key.TLKey;
 
-import java.util.Map;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 /** Cache follows the LRU Cache Policy
  */
 public class LRUCache<K, V> extends AbstractCache {
-    private ConcurrentHashMap<Key, V> cacheMap;
-    private PriorityQueue<Key> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
+    private ConcurrentHashMap<TLKey, V> cacheMap;
+    private PriorityQueue<TLKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
     private Integer maxSize;
 
     public LRUCache() throws Exception {
@@ -21,10 +22,11 @@ public class LRUCache<K, V> extends AbstractCache {
             public void run(){
                 long currentTime = System.currentTimeMillis();
                 if (cacheMap.size() == maxSize) {
-                    Key removingKey = timePriorityQueue.extractMinValue();
-                    cacheMap.remove(removingKey);
+                    //timePriorityQueue.peek();
+                    TLKey removingKey = timePriorityQueue.extractMinPreorityValue();
+                    //cacheMap.remove(removingKey);
                 }
-                for (Key key : cacheMap.keySet()) {
+                for (TLKey key : cacheMap.keySet()) {
                     if (!key.isLive(currentTime)) {
                         cacheMap.remove(key);
                     }
@@ -50,8 +52,18 @@ public class LRUCache<K, V> extends AbstractCache {
      * @param timeout number of milliseconds object keeping in cache
      */
     public void put(K key, V data, long timeout) {
-        cacheMap.put(new Key(key, timeout), data);
+        cacheMap.put(new TLKey(key, timeout), data);
     }
+
+    /**
+     * Class to compare Keys by priority
+     */
+    public static Comparator<Key> cacheComparator = new Comparator<Key>(){
+        @Override
+        public int compare(Key key1, Key key2) {    //it should be cacheMap objects
+            return Long.compare(key1.getPriority(), key2.getPriority());
+        }
+    };
 
     /**
      * Getting an object from cache by key
@@ -59,14 +71,13 @@ public class LRUCache<K, V> extends AbstractCache {
      * @return data object from the cache
      */
     public V get(K key) {
-        currentTime = getCurrentTime();
+        long currentTime = System.currentTimeMillis();
         if (cacheMap.containsKey(key)) {
             // Сначала обновим время последнего запроса к key
-            timePriorityQueue.set(key, currentTime);
-            //timePriorityQueue.set(key, curTime);
-            return cacheMap.get(new Key(key));
+            timePriorityQueue.set(key, currentTime);    //TODO: create or find method to set object existing in queue
+            return cacheMap.get(timePriorityQueue.peek());
         }
-        return cacheMap.get(new Key(key));
+        return cacheMap.get(new TLKey(key));
     }
 
     /**
@@ -74,7 +85,7 @@ public class LRUCache<K, V> extends AbstractCache {
      * @param key - ключ
      */
     public void remove(K key) {
-        cacheMap.remove(new Key(key));
+        cacheMap.remove(new TLKey(key));
     }
 
     /**

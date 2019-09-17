@@ -1,19 +1,19 @@
-package elements;
+package key;
 
 import java.util.Objects;
 
-public class Key {
+public class TLKey {
     private final Object key;
     private final long deathTime;
     //private static final long DEFAULT_LIFETIME = 86200000;
     private static final long DEFAULT_LIFETIME = 1000;
 
-    public Key(Object key, long lifetime){
+    public TLKey(Object key, long lifetime){
         this.key = key;
         this.deathTime = System.currentTimeMillis() + lifetime;
     }
 
-    public Key(Object key) {
+    public TLKey(Object key) {
         this.key = key;
         this.deathTime = System.currentTimeMillis() + DEFAULT_LIFETIME;
     }
@@ -31,7 +31,7 @@ public class Key {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final Key other = (Key) obj;
+        final TLKey other = (TLKey) obj;
         return Objects.equals(this.key, other.key);
     }
 
