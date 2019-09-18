@@ -1,66 +1,57 @@
 package cache;
 
-import key.Key;
-import key.TLKey;
+import key.LRUKey;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-/** Cache follows the LRU Cache Policy
+/**
+ * Cache follows the LRU Cache Policy
  */
 public class LRUCache<K, V> extends AbstractCache {
-    private ConcurrentHashMap<TLKey, V> cacheMap;
-    private PriorityQueue<TLKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
-    private Integer maxSize;
+    private ConcurrentHashMap<LRUKey, V> cacheMap;
+    private PriorityQueue<LRUKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
-    public LRUCache() throws Exception {
-        cacheMap = new ConcurrentHashMap<>();
-    }
-    public void runCacheExecutor(){
-        Thread cacheExecutor = new Thread(){
-            public void run(){
-                long currentTime = System.currentTimeMillis();
-                if (cacheMap.size() == maxSize) {
-                    //timePriorityQueue.peek();
-                    TLKey removingKey = timePriorityQueue.extractMinPreorityValue();
-                    //cacheMap.remove(removingKey);
-                }
-                for (TLKey key : cacheMap.keySet()) {
-                    if (!key.isLive(currentTime)) {
-                        cacheMap.remove(key);
-                    }
-                }
-            }
-        };
+    public LRUCache(int size) throws Exception {
+        super(size);
+        this.cacheMap = new ConcurrentHashMap<LRUKey, V>();
+        this.timePriorityQueue = new PriorityQueue<LRUKey>();
+        //this.size = size;
     }
 
-    /**
-     * Method to insert an object into the cache
-     * Lifetime is setting by default
-     * @param key key of the object in the cache
-     * @param data data contained by the object in the cache
-     */
-    /*public void put(K key, V data) {
-        cacheMap.put(new Key(key, lifetime), data);
+    /*public LRUCache() throws Exception {
+        this(DEFAULT_SIZE);
     }*/
 
     /**
      * Method to insert an object into the cache
-     * @param key key of the object in the cache
-     * @param data data contained by the object in the cache
-     * @param timeout number of milliseconds object keeping in cache
+     * @param key     key of the object in the cache
+     * @param data    data contained by the object in the cache
      */
-    public void put(K key, V data, long timeout) {
-        cacheMap.put(new TLKey(key, timeout), data);
+    public boolean put(K key, V data) {
+        LRUKey addedKey = new LRUKey(key);
+        if(!cacheMap.containsKey(addedKey)){
+            if (cacheMap.size() == size) {
+                LRUKey removingKey = timePriorityQueue.poll();
+                assert removingKey != null;     //TODO: read about assert
+                cacheMap.remove(removingKey);
+            }
+            cacheMap.put(addedKey, data);
+            timePriorityQueue.add(addedKey);
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
-     * Class to compare Keys by priority
+     * Class to compare Keys by time priority
      */
-    public static Comparator<Key> cacheComparator = new Comparator<Key>(){
+    public static Comparator<LRUKey> cacheComparator = new Comparator<LRUKey>() {
         @Override
-        public int compare(Key key1, Key key2) {    //it should be cacheMap objects
+        public int compare(LRUKey key1, LRUKey key2) {
             return Long.compare(key1.getPriority(), key2.getPriority());
         }
     };
@@ -71,13 +62,14 @@ public class LRUCache<K, V> extends AbstractCache {
      * @return data object from the cache
      */
     public V get(K key) {
-        long currentTime = System.currentTimeMillis();
-        if (cacheMap.containsKey(key)) {
-            // Сначала обновим время последнего запроса к key
-            timePriorityQueue.set(key, currentTime);    //TODO: create or find method to set object existing in queue
-            return cacheMap.get(timePriorityQueue.peek());
+        LRUKey newKey = new LRUKey(key);
+        if (cacheMap.containsKey(newKey)) {
+            timePriorityQueue.remove(newKey);  //update time of last request
+            timePriorityQueue.add(newKey);
+            return cacheMap.get(newKey);
+        }else{
+            return null;
         }
-        return cacheMap.get(new TLKey(key));
     }
 
     /**
@@ -85,38 +77,28 @@ public class LRUCache<K, V> extends AbstractCache {
      * @param key - ключ
      */
     public void remove(K key) {
-        cacheMap.remove(new TLKey(key));
+        LRUKey removingKey = new LRUKey(key);
+        timePriorityQueue.remove(removingKey);
+        cacheMap.remove(removingKey);
     }
 
     /**
      * Remove all objects from cache
      */
     public void removeAll() {
+        timePriorityQueue.clear();
         cacheMap.clear();
     }
-
-    /**
-     * Replace all the cache by recieved map
-     * Lifetime is setting by default
-     * @param map map with new data
-     */
-    /*public void setAll(Map<K, V> map) {
-        ConcurrentHashMap<Key, V> tmpMap = new ConcurrentHashMap<>();
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            tmpMap.put(new Key(entry.getKey(), lifetime), entry.getValue());    //at what point the lifetime turn into 0
-        }
-        cacheMap = tmpMap;
-    }*/
 
     /**
      * Add new data in cache
      * Lifetime is setting by default
      * @param map map with new data
      */
-    /*public void addAll(Map<K, V> map) {
+    public void addAll(Map<K, V> map) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
-    }*/
+    }
 
 }

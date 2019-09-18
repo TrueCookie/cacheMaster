@@ -1,14 +1,16 @@
 package key;
 
 public class LRUKey extends Key{
-    private long recentlyUsage;
+    private long lastRequestTime;
+
     public LRUKey(Object key) {
         super(key);
-        recentlyUsage = System.currentTimeMillis();
+        lastRequestTime = System.currentTimeMillis();
     }
 
     @Override
     public long getPriority(){
-        return recentlyUsage;
+        return lastRequestTime;
     }
+
 }

@@ -1,12 +1,17 @@
 package cache;
 
+import key.Key;
 import key.TLKey;
 
 import java.util.concurrent.*;
 
 public class AbstractCache<K, V> {
-    private ConcurrentHashMap<TLKey, V> cacheMap = new ConcurrentHashMap<>();
-    private long DEFAULT_CHECK_PERIOD = 862000000;
+    protected ConcurrentHashMap<Key, V> cacheMap;
+    //private long DEFAULT_CHECK_PERIOD = 862000000;
+    protected int size;
+
+    protected static final int DEFAULT_SIZE = 100;
+
     private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
@@ -16,18 +21,13 @@ public class AbstractCache<K, V> {
         }
     });
 
+    public AbstractCache(int size)  throws Exception {
+        //cacheMap = new ConcurrentHashMap<>();
+        this.size = size;
+    }
+
     public AbstractCache()  throws Exception {
-        scheduledExecutor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                long currentTime = System.currentTimeMillis();
-                for (TLKey key : cacheMap.keySet()) {
-                    if (!key.isLive(currentTime)) {
-                        cacheMap.remove(key);
-                    }
-                }
-            }
-        }, 1, DEFAULT_CHECK_PERIOD, TimeUnit.MILLISECONDS);
+        this(DEFAULT_SIZE);
     }
 
 }
