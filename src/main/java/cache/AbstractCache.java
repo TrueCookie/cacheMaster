@@ -7,7 +7,6 @@ import java.util.concurrent.*;
 
 public class AbstractCache<K, V> {
     protected ConcurrentHashMap<Key, V> cacheMap;
-    //private long DEFAULT_CHECK_PERIOD = 862000000;
     protected int size;
 
     protected static final int DEFAULT_SIZE = 100;

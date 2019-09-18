@@ -21,9 +21,9 @@ public class LRUCache<K, V> extends AbstractCache {
         //this.size = size;
     }
 
-    /*public LRUCache() throws Exception {
-        this(DEFAULT_SIZE);
-    }*/
+    public LRUCache() throws Exception {
+        super(DEFAULT_SIZE);
+    }
 
     /**
      * Method to insert an object into the cache

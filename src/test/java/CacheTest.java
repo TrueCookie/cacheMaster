@@ -7,17 +7,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CacheTest extends TestCase {
+    private Map<Integer, Object> testMap;
+    private Map<Integer, Object> testMap2;
+
     private static final String simpleStr1 = "hellow";
     private static final String simpleStr2 = "orld";
     private static final String simpleStr3 = "iMhere";
-    private Map<Integer, Object> someMap;
+    private static final String simpleStr4 = "4th simple string";
+    private static final String simpleStr5 = "5th simple string";
+    private static final String simpleStr6 = "6th simple string";
 
     @Override
     protected void setUp() throws Exception
     {
-        someMap = new HashMap<>();
-        someMap.put(1010, simpleStr1); //someMap.put(simpleStr1.hashCode(), simpleStr1);
-        someMap.put(2020, simpleStr2);
+        testMap = new HashMap<>();
+        testMap.put(1010, simpleStr1);
+        testMap.put(2020, simpleStr2);
+
+        testMap2 = new HashMap<>();
+        testMap2.put(1010, simpleStr1);
+        testMap2.put(2020, simpleStr2);
+        testMap2.put(3030, simpleStr3);
     }
 
     @Override
@@ -25,7 +35,6 @@ public class CacheTest extends TestCase {
     {
 
     }
-
 
     @Test
     public void testTimeLimitedCache() throws Exception
@@ -35,10 +44,10 @@ public class CacheTest extends TestCase {
 
         defaultTimeCache.put(101, simpleStr1);
 
-        customTimeCache.setAll(someMap);
+        customTimeCache.setAll(testMap);
         customTimeCache.runCacheExecutor();
 
-        assertTrue(someMap.containsKey(1010));
+        assertTrue(testMap.containsKey(1010));
         assertEquals(simpleStr1, customTimeCache.get(1010));
 
         customTimeCache.put(3030, simpleStr3, 1000);
@@ -53,18 +62,29 @@ public class CacheTest extends TestCase {
     @Test
     public void testLRUCache() throws Exception
     {
-        /*LRUCache<Integer, Object> cache = new LRUCache<>();
+        //LRUCache<Integer, Object> defaultLRUCache = new LRUCache<>();
+        LRUCache<Integer, Object> customLRUCache = new LRUCache<>(4);
 
-        cache.setAll(someMap);
-        cache.runCacheExecutor();
+        customLRUCache.addAll(testMap2);
 
-        assertTrue(someMap.containsKey(1010));
-        assertEquals(simpleStr1, cache.get(1010));
+        customLRUCache.get(1010);
+        Thread.sleep(1000);
 
-        cache.put(3030, simpleStr3, 1000);
-        Thread.sleep(500);
-        assertNotNull(cache.get(3030));
-        Thread.sleep(3000);
-        assertNull(cache.get(3030));*/
+        customLRUCache.get(2020);
+        Thread.sleep(1000);
+
+        customLRUCache.get(1010);
+        customLRUCache.get(3030);
+
+        customLRUCache.put(4040, simpleStr4);   //cache should be full now
+        customLRUCache.put(5050, simpleStr5);   //this object replace obj with key 2020
+        assertNull(customLRUCache.get(2020));
+        assertNotNull(customLRUCache.get(1010));
+        Thread.sleep(1000);
+        assertNotNull(customLRUCache.get(3030));
+
+
+        customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 1010
+        assertNull(customLRUCache.get(1010));
     }
 }
