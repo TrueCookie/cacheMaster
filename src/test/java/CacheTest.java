@@ -62,29 +62,36 @@ public class CacheTest extends TestCase {
     @Test
     public void testLRUCache() throws Exception
     {
-        //LRUCache<Integer, Object> defaultLRUCache = new LRUCache<>();
         LRUCache<Integer, Object> customLRUCache = new LRUCache<>(4);
 
         customLRUCache.addAll(testMap2);
 
         customLRUCache.get(1010);
-        Thread.sleep(1000);
+        Thread.sleep(500);
 
         customLRUCache.get(2020);
-        Thread.sleep(1000);
+        Thread.sleep(500);
 
         customLRUCache.get(1010);
+        Thread.sleep(500);
+
         customLRUCache.get(3030);
+        Thread.sleep(500);
 
         customLRUCache.put(4040, simpleStr4);   //cache should be full now
+        assertNotNull(customLRUCache.get(4040));
+        Thread.sleep(500);
+
         customLRUCache.put(5050, simpleStr5);   //this object replace obj with key 2020
         assertNull(customLRUCache.get(2020));
+        Thread.sleep(500);
+
         assertNotNull(customLRUCache.get(1010));
-        Thread.sleep(1000);
+        Thread.sleep(500);
         assertNotNull(customLRUCache.get(3030));
 
 
-        customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 1010
-        assertNull(customLRUCache.get(1010));
+        customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 5050
+        assertNull(customLRUCache.get(5050));
     }
 }

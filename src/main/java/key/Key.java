@@ -3,7 +3,7 @@ package key;
 import java.util.Objects;
 
 public abstract class Key {
-    private final Object key;
+    protected final Object key;
 
     public Key(Object key) {
         this.key = key;
@@ -13,9 +13,7 @@ public abstract class Key {
         return key;
     }
 
-    public long getPriority(){
-        return 0;
-    }
+    public abstract long getPriority();
 
     @Override
     public boolean equals(Object obj) {

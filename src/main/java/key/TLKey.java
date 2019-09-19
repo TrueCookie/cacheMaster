@@ -3,7 +3,7 @@ package key;
 import java.util.Objects;
 
 public class TLKey {
-    private final Object key;
+    protected final Object key;
     private final long deathTime;
     //private static final long DEFAULT_LIFETIME = 86200000;
     private static final long DEFAULT_LIFETIME = 1000;

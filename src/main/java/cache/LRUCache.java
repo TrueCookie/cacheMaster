@@ -17,7 +17,7 @@ public class LRUCache<K, V> extends AbstractCache {
     public LRUCache(int size) throws Exception {
         super(size);
         this.cacheMap = new ConcurrentHashMap<LRUKey, V>();
-        this.timePriorityQueue = new PriorityQueue<LRUKey>();
+        this.timePriorityQueue = new PriorityQueue<LRUKey>(cacheComparator);
         //this.size = size;
     }
 
@@ -62,7 +62,7 @@ public class LRUCache<K, V> extends AbstractCache {
      * @return data object from the cache
      */
     public V get(K key) {
-        LRUKey newKey = new LRUKey(key);
+        LRUKey newKey = new LRUKey(key, System.currentTimeMillis());
         if (cacheMap.containsKey(newKey)) {
             timePriorityQueue.remove(newKey);  //update time of last request
             timePriorityQueue.add(newKey);
