@@ -1,11 +1,14 @@
 package cache;
 
 import key.Key;
+import key.LRUKey;
 
+import java.util.Comparator;
+import java.util.Map;
 import java.util.concurrent.*;
 
 //TODO: add saving on disk
-public class AbstractCache<K, V> {
+public abstract class AbstractCache<K, V> {
     protected ConcurrentHashMap<Key, V> cacheMap;
     protected int size;
 
@@ -19,4 +22,19 @@ public class AbstractCache<K, V> {
         this(DEFAULT_SIZE);
     }
 
+    /**
+     * Class to compare Keys by time priority
+     */
+    protected static Comparator<Key> cacheComparator = new Comparator<Key>() {
+        @Override
+        public int compare(Key key1, Key key2) {
+            return Long.compare(key1.getPriority(), key2.getPriority());
+        }
+    };
+
+    public abstract boolean put(K key, V data);
+    public abstract V get(K key);
+    public abstract void remove(K key);
+    public abstract void removeAll();
+    public abstract void addAll(Map<K, V> map);
 }

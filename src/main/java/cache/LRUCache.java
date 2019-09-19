@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Cache follows the LRU Cache Policy
  */
-public class LRUCache<K, V> extends AbstractCache {
+public class LRUCache<K, V> extends AbstractCache<K, V> {
     private ConcurrentHashMap<LRUKey, V> cacheMap;  //<? extends Key, V>
     private PriorityQueue<LRUKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
@@ -30,6 +30,7 @@ public class LRUCache<K, V> extends AbstractCache {
      * @param key     key of the object in the cache
      * @param data    data contained by the object in the cache
      */
+    @Override
     public boolean put(K key, V data) {
         LRUKey addedKey = new LRUKey(key);
         if(!cacheMap.containsKey(addedKey)){
@@ -49,18 +50,19 @@ public class LRUCache<K, V> extends AbstractCache {
     /**
      * Class to compare Keys by time priority
      */
-    public static Comparator<LRUKey> cacheComparator = new Comparator<LRUKey>() {
+    /*public static Comparator<LRUKey> cacheComparator = new Comparator<LRUKey>() {
         @Override
         public int compare(LRUKey key1, LRUKey key2) {
             return Long.compare(key1.getPriority(), key2.getPriority());
         }
-    };
+    };*/
 
     /**
      * Getting an object from cache by key
      * @param key key of the object in the cache
      * @return data object from the cache
      */
+    @Override
     public V get(K key) {
         LRUKey newKey = new LRUKey(key, System.currentTimeMillis());
         if (cacheMap.containsKey(newKey)) {
@@ -76,6 +78,7 @@ public class LRUCache<K, V> extends AbstractCache {
      * Remove objects from cache by key
      * @param key - ключ
      */
+    @Override
     public void remove(K key) {
         LRUKey removingKey = new LRUKey(key);
         timePriorityQueue.remove(removingKey);
@@ -85,6 +88,7 @@ public class LRUCache<K, V> extends AbstractCache {
     /**
      * Remove all objects from cache
      */
+    @Override
     public void removeAll() {
         timePriorityQueue.clear();
         cacheMap.clear();
@@ -95,6 +99,7 @@ public class LRUCache<K, V> extends AbstractCache {
      * Lifetime is setting by default
      * @param map map with new data
      */
+    @Override
     public void addAll(Map<K, V> map) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
