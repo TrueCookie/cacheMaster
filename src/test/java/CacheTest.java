@@ -1,3 +1,4 @@
+import cache.MRUCache;
 import cache.TimeLimitedCache;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -94,4 +95,41 @@ public class CacheTest extends TestCase {
         customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 5050
         assertNull(customLRUCache.get(5050));
     }
+
+    @Test
+    public void testMRUCache() throws Exception
+    {
+        MRUCache<Integer, Object> customMRUCache = new MRUCache<>(4);
+
+        customMRUCache.addAll(testMap2);
+
+        customMRUCache.get(1010);
+        Thread.sleep(500);
+
+        customMRUCache.get(2020);
+        Thread.sleep(500);
+
+        customMRUCache.get(1010);
+        Thread.sleep(500);
+
+        customMRUCache.get(3030);
+        Thread.sleep(500);
+
+        customMRUCache.put(4040, simpleStr4);   //cache should be full now
+        assertNotNull(customMRUCache.get(4040));
+        Thread.sleep(500);
+
+        customMRUCache.put(5050, simpleStr5);   //this object replace obj with key 4040
+        assertNull(customMRUCache.get(4040));
+        Thread.sleep(500);
+
+        assertEquals(simpleStr1 ,customMRUCache.get(1010));
+        Thread.sleep(500);
+        assertNotNull(customMRUCache.get(3030));
+
+
+        customMRUCache.put(6060, simpleStr6);   //this object replace obj with key 3030
+        assertNull(customMRUCache.get(3030));
+    }
+
 }

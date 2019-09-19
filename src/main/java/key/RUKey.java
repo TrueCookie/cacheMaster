@@ -2,15 +2,15 @@ package key;
 
 import java.util.Objects;
 
-public class LRUKey extends Key{
+public class RUKey extends Key{
     private long lastRequestTime;
 
-    public LRUKey(Object key, long requestTime) {
+    public RUKey(Object key, long requestTime) {
         super(key);
         lastRequestTime = requestTime;
     }
 
-    public LRUKey(Object key) {
+    public RUKey(Object key) {
         super(key);
         lastRequestTime = 0;
     }

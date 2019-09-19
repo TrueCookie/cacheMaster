@@ -1,7 +1,6 @@
 package cache;
 
 import key.Key;
-import key.LRUKey;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -25,12 +24,12 @@ public abstract class AbstractCache<K, V> {
     /**
      * Class to compare Keys by time priority
      */
-    protected static Comparator<Key> cacheComparator = new Comparator<Key>() {
+    /*protected static Comparator<Key> cacheComparator = new Comparator<Key>() {
         @Override
         public int compare(Key key1, Key key2) {
             return Long.compare(key1.getPriority(), key2.getPriority());
         }
-    };
+    };*/
 
     public abstract boolean put(K key, V data);
     public abstract V get(K key);
