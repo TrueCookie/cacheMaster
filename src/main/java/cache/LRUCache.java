@@ -1,5 +1,6 @@
 package cache;
 
+import key.Key;
 import key.LRUKey;
 
 import java.util.Comparator;
@@ -11,14 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Cache follows the LRU Cache Policy
  */
 public class LRUCache<K, V> extends AbstractCache {
-    private ConcurrentHashMap<LRUKey, V> cacheMap;
+    private ConcurrentHashMap<LRUKey, V> cacheMap;  //<? extends Key, V>
     private PriorityQueue<LRUKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
     public LRUCache(int size) throws Exception {
         super(size);
         this.cacheMap = new ConcurrentHashMap<LRUKey, V>();
         this.timePriorityQueue = new PriorityQueue<LRUKey>(cacheComparator);
-        //this.size = size;
     }
 
     public LRUCache() throws Exception {
@@ -64,7 +64,7 @@ public class LRUCache<K, V> extends AbstractCache {
     public V get(K key) {
         LRUKey newKey = new LRUKey(key, System.currentTimeMillis());
         if (cacheMap.containsKey(newKey)) {
-            timePriorityQueue.remove(newKey);  //update time of last request
+            timePriorityQueue.remove(newKey);
             timePriorityQueue.add(newKey);
             return cacheMap.get(newKey);
         }else{
