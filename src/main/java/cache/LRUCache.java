@@ -45,7 +45,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
         if(!cacheMap.containsKey(addedKey)){
             if (cacheMap.size() == size) {
                 RUKey removingKey = timePriorityQueue.poll();
-                assert removingKey != null;     //TODO: read about assert
+                assert removingKey != null;
                 cacheMap.remove(removingKey);
             }
             cacheMap.put(addedKey, data);

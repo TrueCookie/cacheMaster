@@ -1,3 +1,4 @@
+import cache.LFUCache;
 import cache.MRUCache;
 import cache.TimeLimitedCache;
 import junit.framework.TestCase;
@@ -6,6 +7,8 @@ import cache.LRUCache;
 
 import java.util.HashMap;
 import java.util.Map;
+
+    //Can I keep in cacheMap elementary key only
 
 public class CacheTest extends TestCase {
     private Map<Integer, Object> testMap;
@@ -127,9 +130,36 @@ public class CacheTest extends TestCase {
         Thread.sleep(500);
         assertNotNull(customMRUCache.get(3030));
 
-
         customMRUCache.put(6060, simpleStr6);   //this object replace obj with key 3030
         assertNull(customMRUCache.get(3030));
+    }
+
+    @Test
+    public void testLFUCache() throws Exception
+    {
+        LFUCache<Integer, Object> customLFUCache = new LFUCache<>(4);
+
+        customLFUCache.addAll(testMap2);
+
+        customLFUCache.get(1010);
+        customLFUCache.get(2020);
+        customLFUCache.get(2020);
+        customLFUCache.get(1010);
+        customLFUCache.get(3030);
+        customLFUCache.get(3030);
+        customLFUCache.get(3030);
+
+        customLFUCache.put(4040, simpleStr4);   //cache should be full now
+        assertNotNull(customLFUCache.get(4040));
+
+        customLFUCache.put(5050, simpleStr5);   //this object replace obj with key 4040
+        assertNull(customLFUCache.get(4040));
+
+        assertEquals(simpleStr1 ,customLFUCache.get(1010));
+        assertNotNull(customLFUCache.get(3030));
+
+        customLFUCache.put(6060, simpleStr6);   //this object replace obj with key 2020
+        assertNull(customLFUCache.get(5050));
     }
 
 }
