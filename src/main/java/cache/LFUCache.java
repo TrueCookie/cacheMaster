@@ -1,21 +1,18 @@
 package cache;
 
+import key.Key;
 import key.LFUKey;
-import key.RUKey;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static cache.LRUCache.LRUCacheComparator;
-import static cache.MRUCache.MRUCacheComparator;
-
 public class LFUCache<K, V> extends AbstractCache<K, V> {
-    private ConcurrentHashMap<LFUKey, V> cacheMap;  //<? extends Key, V>
+    private ConcurrentHashMap<Key, V> cacheMap;  //<? extends Key, V>
     private PriorityQueue<LFUKey> priorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
     public LFUCache(int size) throws Exception {
         super(size);
-        this.cacheMap = new ConcurrentHashMap<LFUKey, V>();
+        this.cacheMap = new ConcurrentHashMap<Key, V>();
         this.priorityQueue = new PriorityQueue<LFUKey>(LRUCacheComparator);
     }
 
@@ -55,7 +52,7 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
         if (cacheMap.containsKey(newKey)) {
             //newKey = new LFUKey(key, getKeyPriority(newKey)+1);
             priorityQueue.remove(newKey);
-            newKey = new LFUKey(key, getKeyPriority(newKey)+1);
+            newKey = new LFUKey(key, getKeyPriority(newKey, cacheMap)+1);
             priorityQueue.add(newKey);
             V oldValue = cacheMap.get(newKey);  //& now i should update key in cacheMap
             cacheMap.remove(newKey);
@@ -66,24 +63,12 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
         }
     }
 
-/*    private long getKeyPriority(LFUKey targetKey){  //find oldKey by newKey with key
-        HashMap<LFUKey,V> tmpMap = new HashMap<LFUKey,V>(cacheMap.keySet().getMap());
+    private long getKeyPriority(LFUKey targetKey, ConcurrentHashMap<Key,V> map){  //find oldKey by newKey with key
+        ConcurrentHashMap<Key,V> tmpMap = new ConcurrentHashMap<Key,V>(map);
         Long priority = null;
-        for (Map.Entry<LFUKey, V> entry : tmpMap.entrySet()) {
+        for (Map.Entry<Key, V> entry : tmpMap.entrySet()) {
             if(entry.getKey().equals(targetKey)){
                 priority = entry.getKey().getPriority();
-                break;
-            }
-        }
-        return priority;
-    }*/
-
-    private long getKeyPriority(LFUKey targetKey){  //find oldKey by newKey with key
-        HashSet<LFUKey> tmp = new HashSet<LFUKey>(cacheMap.keySet());
-        Long priority = null;
-        for (LFUKey entry : tmp) {
-            if(entry.equals(targetKey)){
-                priority = entry.getPriority();
                 break;
             }
         }

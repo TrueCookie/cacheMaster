@@ -8,7 +8,7 @@ import cache.LRUCache;
 import java.util.HashMap;
 import java.util.Map;
 
-    //Can I keep in cacheMap elementary key only
+    //TODO: Can I keep in cacheMap elementary key only
 
 public class CacheTest extends TestCase {
     private Map<Integer, Object> testMap;
