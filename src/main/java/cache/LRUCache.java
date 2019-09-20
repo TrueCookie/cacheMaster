@@ -25,16 +25,6 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
     }
 
     /**
-     * Class to compare Keys by time priority
-     */
-    /*public static Comparator<RUKey> LRUCacheComparator = new Comparator<RUKey>() {
-        @Override
-        public int compare(RUKey key1, RUKey key2) {
-            return Long.compare(key1.getPriority(), key2.getPriority());
-        }
-    };*/
-
-    /**
      * Method to insert an object into the cache
      * @param key     key of the object in the cache
      * @param data    data contained by the object in the cache
