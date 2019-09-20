@@ -13,15 +13,12 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
     public LFUCache(int size) throws Exception {
         super(size);
         this.cacheMap = new ConcurrentHashMap<Key, V>();
-        this.priorityQueue = new PriorityQueue<LFUKey>(LRUCacheComparator);
+        this.priorityQueue = new PriorityQueue<LFUKey>(priorityComparator);
     }
 
-    public static Comparator<LFUKey> LRUCacheComparator = new Comparator<LFUKey>() {
-        @Override
-        public int compare(LFUKey key1, LFUKey key2) {
-            return Long.compare(key1.getPriority(), key2.getPriority());
-        }
-    };
+    public LFUCache() throws Exception {
+        this(DEFAULT_SIZE);
+    }
 
     @Override
     public boolean put(K key, V data) {
@@ -41,16 +38,13 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
     }
 
     /**
-     * There i should getPriority from LFUKey from queue or map.
-     *
-     * @param key
+     * @param key key for value in a cache
      * @return
      */
     @Override
     public V get(K key) {
         LFUKey newKey = new LFUKey(key);
         if (cacheMap.containsKey(newKey)) {
-            //newKey = new LFUKey(key, getKeyPriority(newKey)+1);
             priorityQueue.remove(newKey);
             newKey = new LFUKey(key, getKeyPriority(newKey, cacheMap)+1);
             priorityQueue.add(newKey);

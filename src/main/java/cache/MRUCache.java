@@ -17,22 +17,12 @@ public class MRUCache<K, V> extends AbstractCache<K, V>{
     public MRUCache(int size) throws Exception {
         super(size);
         this.cacheMap = new ConcurrentHashMap<RUKey, V>();
-        this.timePriorityQueue = new PriorityQueue<RUKey>(MRUCacheComparator);
+        this.timePriorityQueue = new PriorityQueue<RUKey>(reversePriorityComparator);
     }
 
     public MRUCache() throws Exception {
-        super();
+        this(DEFAULT_SIZE);
     }
-
-    /**
-     * Class to compare Keys by time priority
-     */
-    public static Comparator<RUKey> MRUCacheComparator = new Comparator<RUKey>() {
-        @Override
-        public int compare(RUKey key1, RUKey key2) {
-            return -Long.compare(key1.getPriority(), key2.getPriority());
-        }
-    };
 
     /**
      * Method to insert an object into the cache

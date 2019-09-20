@@ -17,19 +17,26 @@ public abstract class AbstractCache<K, V> {
         this.size = size;
     }
 
-    public AbstractCache()  throws Exception {
+    public AbstractCache()  throws Exception {  //super or this???
         this(DEFAULT_SIZE);
     }
 
     /**
      * Class to compare Keys by time priority
      */
-    /*protected static Comparator<Key> cacheComparator = new Comparator<Key>() {
+    protected static Comparator<Key> priorityComparator = new Comparator<Key>() {
         @Override
         public int compare(Key key1, Key key2) {
             return Long.compare(key1.getPriority(), key2.getPriority());
         }
-    };*/
+    };
+
+    protected static Comparator<Key> reversePriorityComparator = new Comparator<Key>() {
+        @Override
+        public int compare(Key key1, Key key2) {
+            return -Long.compare(key1.getPriority(), key2.getPriority());
+        }
+    };
 
     public abstract boolean put(K key, V data);
     public abstract V get(K key);

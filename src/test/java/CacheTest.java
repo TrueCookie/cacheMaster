@@ -1,9 +1,7 @@
-import cache.LFUCache;
-import cache.MRUCache;
-import cache.TimeLimitedCache;
+import cache.*;
 import junit.framework.TestCase;
+import key.Key;
 import org.junit.Test;
-import cache.LRUCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +100,11 @@ public class CacheTest extends TestCase {
     @Test
     public void testMRUCache() throws Exception
     {
+        MRUCache<Integer, Object> defaultMRUCache = new MRUCache<>();
         MRUCache<Integer, Object> customMRUCache = new MRUCache<>(4);
+
+        defaultMRUCache.put(1111, simpleStr1);
+        assertEquals(simpleStr1 ,defaultMRUCache.get(1111));
 
         customMRUCache.addAll(testMap2);
 
