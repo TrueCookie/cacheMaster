@@ -7,13 +7,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LFUCache<K, V> extends AbstractCache<K, V> {
-    private ConcurrentHashMap<Key, V> cacheMap;  //<? extends Key, V>
-    private PriorityQueue<LFUKey> priorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
     public LFUCache(int size) throws Exception {
         super(size);
-        this.cacheMap = new ConcurrentHashMap<Key, V>();
-        this.priorityQueue = new PriorityQueue<LFUKey>(priorityComparator);
+        this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
     }
 
     public LFUCache() throws Exception {
@@ -22,10 +19,10 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
 
     @Override
     public boolean put(K key, V data) {
-        LFUKey addedKey = new LFUKey(key);
+        Key addedKey = new LFUKey(key);
         if(!cacheMap.containsKey(addedKey)){
             if (cacheMap.size() == size) {
-                LFUKey removingKey = priorityQueue.poll();
+                Key removingKey = priorityQueue.poll();
                 assert removingKey != null;
                 cacheMap.remove(removingKey);
             }

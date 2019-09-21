@@ -4,20 +4,23 @@ import key.Key;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 //TODO: add saving on disk
 public abstract class AbstractCache<K, V> {
     protected ConcurrentHashMap<Key, V> cacheMap;
+    protected PriorityQueue<Key> priorityQueue; //if it isn't working for threads - use PriorityBlockingQueue
     protected int size;
 
     protected static final int DEFAULT_SIZE = 100;
 
     public AbstractCache(int size)  throws Exception {
+        this.cacheMap = new ConcurrentHashMap<Key, V>();
         this.size = size;
     }
 
-    public AbstractCache()  throws Exception {  //super or this???
+    public AbstractCache()  throws Exception {
         this(DEFAULT_SIZE);
     }
 

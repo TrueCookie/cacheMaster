@@ -1,23 +1,19 @@
 package cache;
 
+import key.Key;
 import key.RUKey;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cache follows the LRU Cache Policy
  */
 public class LRUCache<K, V> extends AbstractCache<K, V> {
-    private ConcurrentHashMap<RUKey, V> cacheMap;  //<? extends Key, V>
-    private PriorityQueue<RUKey> timePriorityQueue;   //if it isn't working for threads - use PriorityBlockingQueue
 
     public LRUCache(int size) throws Exception {
         super(size);
-        this.cacheMap = new ConcurrentHashMap<RUKey, V>();
-        this.timePriorityQueue = new PriorityQueue<RUKey>(priorityComparator);
+        this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
     }
 
     public LRUCache() throws Exception {
@@ -31,15 +27,15 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
      */
     @Override
     public boolean put(K key, V data) {
-        RUKey addedKey = new RUKey(key);
+        Key addedKey = new RUKey(key);
         if(!cacheMap.containsKey(addedKey)){
             if (cacheMap.size() == size) {
-                RUKey removingKey = timePriorityQueue.poll();
+                Key removingKey = priorityQueue.poll();
                 assert removingKey != null;
                 cacheMap.remove(removingKey);
             }
             cacheMap.put(addedKey, data);
-            timePriorityQueue.add(addedKey);
+            priorityQueue.add(addedKey);
             return true;
         }else{
             return false;
@@ -55,8 +51,8 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
     public V get(K key) {
         RUKey newKey = new RUKey(key, System.currentTimeMillis());
         if (cacheMap.containsKey(newKey)) {
-            timePriorityQueue.remove(newKey);
-            timePriorityQueue.add(newKey);
+            priorityQueue.remove(newKey);
+            priorityQueue.add(newKey);
             return cacheMap.get(newKey);
         }else{
             return null;
@@ -70,7 +66,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
     @Override
     public void remove(K key) {
         RUKey removingKey = new RUKey(key);
-        timePriorityQueue.remove(removingKey);
+        priorityQueue.remove(removingKey);
         cacheMap.remove(removingKey);
     }
 
@@ -79,7 +75,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
      */
     @Override
     public void removeAll() {
-        timePriorityQueue.clear();
+        priorityQueue.clear();
         cacheMap.clear();
     }
 
