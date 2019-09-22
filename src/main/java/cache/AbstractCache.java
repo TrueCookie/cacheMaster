@@ -2,12 +2,17 @@ package cache;
 
 import key.Key;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 //TODO: add saving on disk
+//TODO: replace priorityQueue with a priorityQueue with pairs <key, priority>
 public abstract class AbstractCache<K, V> {
     protected ConcurrentHashMap<Key, V> cacheMap;
     protected PriorityQueue<Key> priorityQueue; //if it isn't working for threads - use PriorityBlockingQueue
@@ -46,4 +51,19 @@ public abstract class AbstractCache<K, V> {
     public abstract void remove(K key);
     public abstract void removeAll();
     public abstract void addAll(Map<K, V> map);
+
+/*    public void writeOnDisk() throws IOException {
+        File file = new File("C:"+File.separator+"Cache"+File.separator+"cache");
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+
+        String testStr = "SOME CACHE DATA HERE";
+        Integer testInt1 = 600606;
+        Object testObj2 = "(/¯◡ ‿ ◡)/¯ ~ ┻━┻";
+        Object testObj3 = 8+"ಠ_ಠ";
+
+        fileOutputStream.write(testStr.getBytes());
+        fileOutputStream.write(testInt1);
+
+        fileOutputStream.close();
+    }*/
 }

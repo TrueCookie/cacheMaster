@@ -3,6 +3,7 @@ import junit.framework.TestCase;
 import key.Key;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +13,19 @@ public class CacheTest extends TestCase {
     private Map<Integer, Object> testMap;
     private Map<Integer, Object> testMap2;
 
+    File testFile;
+
     private static final String simpleStr1 = "hellow";
     private static final String simpleStr2 = "orld";
     private static final String simpleStr3 = "iMhere";
     private static final String simpleStr4 = "4th simple string";
     private static final String simpleStr5 = "5th simple string";
     private static final String simpleStr6 = "6th simple string";
+
+    private static final String testStr = "SOME CACHE DATA HERE";
+    private static final Integer testInt1 = 600606;
+    private static final Object testObj2 = "(/¯◡ ‿ ◡)/¯ ~ ┻━┻";
+    private static final Object testObj3 = 8 + "ಠ_ಠ";
 
     @Override
     protected void setUp() throws Exception
@@ -30,6 +38,8 @@ public class CacheTest extends TestCase {
         testMap2.put(1010, simpleStr1);
         testMap2.put(2020, simpleStr2);
         testMap2.put(3030, simpleStr3);
+
+        testFile = new File("C:" + File.separator + "Cache" + File.separator + "cache");
     }
 
     @Override
@@ -92,9 +102,45 @@ public class CacheTest extends TestCase {
         Thread.sleep(500);
         assertNotNull(customLRUCache.get(3030));
 
-
         customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 5050
         assertNull(customLRUCache.get(5050));
+    }
+
+    @Test
+    public void testLRUCacheOnDisk() throws Exception
+    {
+        LRUCache<Integer, Object> LRUCacheOnDisk = new LRUCache<>(4, testFile);
+
+        LRUCacheOnDisk.addAll(testMap2);
+
+        LRUCacheOnDisk.get(1010);
+        Thread.sleep(500);
+
+        LRUCacheOnDisk.get(2020);
+        Thread.sleep(500);
+
+        LRUCacheOnDisk.get(1010);
+        Thread.sleep(500);
+
+        LRUCacheOnDisk.get(3030);
+        Thread.sleep(500);
+
+        LRUCacheOnDisk.put(4040, testInt1);   //cache should be full now
+        assertEquals(600606,LRUCacheOnDisk.get(4040));
+        Thread.sleep(500);
+
+        LRUCacheOnDisk.put(2000, testObj2);   //this object replace obj with key 2020
+        assertNull(LRUCacheOnDisk.get(2020));
+        Thread.sleep(500);
+
+        assertNotNull(LRUCacheOnDisk.get(1010));
+        Thread.sleep(500);
+        assertNotNull(LRUCacheOnDisk.get(3030));
+
+        LRUCacheOnDisk.put(3000, testObj3);   //this object replace obj with key 5050
+        assertNull(LRUCacheOnDisk.get(2000));
+
+        System.out.println(LRUCacheOnDisk.get(3000));   //check it in console
     }
 
     @Test
