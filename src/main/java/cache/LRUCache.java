@@ -15,24 +15,27 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     private File cacheFile;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+    private boolean writeOnDiskFlag;
     //should i put data straight into the file or put just map&queue
 
     public LRUCache(int size) throws Exception {
         super(size);
         this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
+        writeOnDiskFlag = true;
     }
 
     public LRUCache(int size, File cacheFile) throws Exception {
         super(size);
         this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
+        this.cacheFile = cacheFile;
         if (!cacheFile.exists()){
             File dir = cacheFile.getParentFile();
             dir.mkdirs();
         }
-        if (!cacheFile.exists() && !cacheFile.isDirectory()){
+        if (!cacheFile.exists() /*&& !cacheFile.isDirectory()*/){
             cacheFile.createNewFile();
         }
-
+        writeOnDiskFlag = true;
         /*File dir = new File("tmp/test");
         dir.mkdirs();
         File tmp = new File(dir, "tmp.txt");
@@ -63,7 +66,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
             }
             cacheMap.put(addedKey, data);
             priorityQueue.add(addedKey);
-            if(outputStream != null){
+            if(writeOnDiskFlag){
                 this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
                 outputStream.writeObject(cacheMap); //if write on disk is turned on
                 this.outputStream.close();
@@ -83,7 +86,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     @Override
     public V get(K key) throws IOException, ClassNotFoundException {
         RUKey newKey = new RUKey(key, System.currentTimeMillis());
-        if(outputStream != null) {
+        if(writeOnDiskFlag) {
             this.inputStream = new ObjectInputStream(new FileInputStream(cacheFile));
             this.cacheMap = (ConcurrentHashMap<Key, V>) inputStream.readObject();
             this.inputStream.close();
@@ -91,8 +94,10 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
         if (cacheMap.containsKey(newKey)) {
             priorityQueue.remove(newKey);
             priorityQueue.add(newKey);
-            if(outputStream != null){
-                outputStream.writeObject(cacheMap); //update if write on disk is turned on
+            if(writeOnDiskFlag = true){
+                this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
+                outputStream.writeObject(cacheMap);
+                this.outputStream.close();
             }
             return cacheMap.get(newKey);
         } else {

@@ -1,8 +1,9 @@
 package key;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class RUKey extends Key{
+public class RUKey extends Key implements Serializable {
     private long lastRequestTime;
 
     public RUKey(Object key, long requestTime) {
