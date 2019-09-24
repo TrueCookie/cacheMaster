@@ -46,11 +46,11 @@ public abstract class AbstractCache<K, V> {
         }
     };
 
-    public abstract boolean put(K key, V data);
-    public abstract V get(K key);
+    public abstract boolean put(K key, V data) throws IOException;
+    public abstract V get(K key) throws IOException, ClassNotFoundException;
     public abstract void remove(K key);
     public abstract void removeAll();
-    public abstract void addAll(Map<K, V> map);
+    public abstract void addAll(Map<K, V> map) throws IOException;
 
 /*    public void writeOnDisk() throws IOException {
         File file = new File("C:"+File.separator+"Cache"+File.separator+"cache");

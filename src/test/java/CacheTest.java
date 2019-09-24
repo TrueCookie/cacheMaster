@@ -4,6 +4,7 @@ import key.Key;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,8 @@ public class CacheTest extends TestCase {
         testMap2.put(2020, simpleStr2);
         testMap2.put(3030, simpleStr3);
 
-        testFile = new File("C:" + File.separator + "Cache" + File.separator + "cache");
+        //testFile = new File(File.separator + "CacheData" + File.separator + "cache");
+        testFile = new File("tmp/test/tmp.text");
     }
 
     @Override
@@ -109,7 +111,7 @@ public class CacheTest extends TestCase {
     @Test
     public void testLRUCacheOnDisk() throws Exception
     {
-        LRUCache<Integer, Object> LRUCacheOnDisk = new LRUCache<>(4, testFile);
+        LRUCache<Integer, Object> LRUCacheOnDisk = new LRUCache<Integer, Object>(4, testFile);
 
         LRUCacheOnDisk.addAll(testMap2);
 

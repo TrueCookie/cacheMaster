@@ -3,18 +3,19 @@ package cache;
 import key.Key;
 import key.RUKey;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cache follows the LRU Cache Policy
  */
-public class LRUCache<K, V> extends AbstractCache<K, V> {
+public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable {
     private File cacheFile;
-    private FileOutputStream fileOutputStream;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    //should i put data straight into the file or put just map&queue
 
     public LRUCache(int size) throws Exception {
         super(size);
@@ -24,19 +25,25 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
     public LRUCache(int size, File cacheFile) throws Exception {
         super(size);
         this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
-        this.cacheFile = cacheFile;
-        this.fileOutputStream = new FileOutputStream(cacheFile);
+        if (!cacheFile.exists()){
+            File dir = cacheFile.getParentFile();
+            dir.mkdirs();
+        }
+        if (!cacheFile.exists() && !cacheFile.isDirectory()){
+            cacheFile.createNewFile();
+        }
+
+        /*File dir = new File("tmp/test");
+        dir.mkdirs();
+        File tmp = new File(dir, "tmp.txt");
+        tmp.createNewFile();*/
+
+        //this.inputStream = new ObjectInputStream(new FileInputStream(cacheFile));
+        //this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
     }
 
     public LRUCache() throws Exception {
         this(DEFAULT_SIZE);
-    }
-
-    public void writeOnDisk() throws IOException {  //should i put data straight into the file or put just map&queue
-        fileOutputStream.write(testStr.getBytes());
-        fileOutputStream.write(testInt1);
-
-        fileOutputStream.close();
     }
 
     /**
@@ -46,7 +53,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
      * @param data data contained by the object in the cache
      */
     @Override
-    public boolean put(K key, V data) {
+    public boolean put(K key, V data) throws IOException {
         Key addedKey = new RUKey(key);
         if (!cacheMap.containsKey(addedKey)) {
             if (cacheMap.size() == size) {
@@ -56,6 +63,11 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
             }
             cacheMap.put(addedKey, data);
             priorityQueue.add(addedKey);
+            if(outputStream != null){
+                this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
+                outputStream.writeObject(cacheMap); //if write on disk is turned on
+                this.outputStream.close();
+            }
             return true;
         } else {
             return false;
@@ -69,11 +81,19 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
      * @return data object from the cache
      */
     @Override
-    public V get(K key) {
+    public V get(K key) throws IOException, ClassNotFoundException {
         RUKey newKey = new RUKey(key, System.currentTimeMillis());
+        if(outputStream != null) {
+            this.inputStream = new ObjectInputStream(new FileInputStream(cacheFile));
+            this.cacheMap = (ConcurrentHashMap<Key, V>) inputStream.readObject();
+            this.inputStream.close();
+        }
         if (cacheMap.containsKey(newKey)) {
             priorityQueue.remove(newKey);
             priorityQueue.add(newKey);
+            if(outputStream != null){
+                outputStream.writeObject(cacheMap); //update if write on disk is turned on
+            }
             return cacheMap.get(newKey);
         } else {
             return null;
@@ -108,7 +128,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> {
      * @param map map with new data
      */
     @Override
-    public void addAll(Map<K, V> map) {
+    public void addAll(Map<K, V> map) throws IOException {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
