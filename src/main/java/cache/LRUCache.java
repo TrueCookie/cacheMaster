@@ -83,12 +83,16 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
      * @param key key of the object in the cache
      * @return data object from the cache
      */
+    @SuppressWarnings("unchecked")
     @Override
     public V get(K key) throws IOException, ClassNotFoundException {
         RUKey newKey = new RUKey(key, System.currentTimeMillis());
         if(writeOnDiskFlag) {
             this.inputStream = new ObjectInputStream(new FileInputStream(cacheFile));
-            this.cacheMap = (ConcurrentHashMap<Key, V>) inputStream.readObject();
+            Object inputObj = inputStream.readObject();
+            if(inputObj instanceof ConcurrentHashMap){
+                this.cacheMap = (ConcurrentHashMap<Key, V>) inputObj;
+            }
             this.inputStream.close();
         }
         if (cacheMap.containsKey(newKey)) {

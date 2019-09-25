@@ -1,8 +1,9 @@
 package key;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Key {
+public abstract class Key implements Serializable {
     protected final Object key;
 
     public Key(Object key) {

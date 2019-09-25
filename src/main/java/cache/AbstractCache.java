@@ -2,10 +2,7 @@ package cache;
 
 import key.Key;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -13,7 +10,7 @@ import java.util.concurrent.*;
 
 //TODO: add saving on disk
 //TODO: replace priorityQueue with a priorityQueue with pairs <key, priority>
-public abstract class AbstractCache<K, V> {
+public abstract class AbstractCache<K, V> implements Serializable {
     protected ConcurrentHashMap<Key, V> cacheMap;
     protected PriorityQueue<Key> priorityQueue; //if it isn't working for threads - use PriorityBlockingQueue
     protected int size;

@@ -139,10 +139,8 @@ public class CacheTest extends TestCase {
         Thread.sleep(500);
         assertNotNull(LRUCacheOnDisk.get(3030));
 
-        LRUCacheOnDisk.put(3000, testObj3);   //this object replace obj with key 5050
+        LRUCacheOnDisk.put(3000, testObj3);   //this object replace obj with key 2000
         assertNull(LRUCacheOnDisk.get(2000));
-
-        System.out.println(LRUCacheOnDisk.get(3000));   //check it in console
     }
 
     @Test
