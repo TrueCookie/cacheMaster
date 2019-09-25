@@ -28,11 +28,12 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
         super(size);
         this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
         this.cacheFile = cacheFile;
-        if (!cacheFile.exists()){
-            File dir = cacheFile.getParentFile();
+        File dir = cacheFile.getParentFile();
+        if (!dir.exists()){
             dir.mkdirs();
         }
         if (!cacheFile.exists() /*&& !cacheFile.isDirectory()*/){
+            File tmp = new File(dir, "tmp.txt");
             cacheFile.createNewFile();
         }
         writeOnDiskFlag = true;

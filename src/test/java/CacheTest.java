@@ -40,8 +40,7 @@ public class CacheTest extends TestCase {
         testMap2.put(2020, simpleStr2);
         testMap2.put(3030, simpleStr3);
 
-        //testFile = new File(File.separator + "CacheData" + File.separator + "cache");
-        testFile = new File("tmp/test/tmp.text");
+        testFile = new File("CacheData" + File.separator + "cache");
     }
 
     @Override
