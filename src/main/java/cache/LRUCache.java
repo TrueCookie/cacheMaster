@@ -21,7 +21,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     public LRUCache(int size) throws Exception {
         super(size);
         this.priorityQueue = new PriorityQueue<Key>(priorityComparator);
-        writeOnDiskFlag = true;
+        writeOnDiskFlag = false;
     }
 
     public LRUCache(int size, File cacheFile) throws Exception {
@@ -98,7 +98,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
         if (cacheMap.containsKey(newKey)) {
             priorityQueue.remove(newKey);
             priorityQueue.add(newKey);
-            if(writeOnDiskFlag = true){
+            if(writeOnDiskFlag){
                 this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
                 outputStream.writeObject(cacheMap);
                 this.outputStream.close();
