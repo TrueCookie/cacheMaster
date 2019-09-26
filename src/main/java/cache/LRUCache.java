@@ -4,7 +4,6 @@ import key.Key;
 import key.RUKey;
 
 import java.io.*;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,10 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable {
     private File cacheFile;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
     private boolean writeOnDiskFlag;
-    //should i put data straight into the file or put just map&queue
 
     public LRUCache(int size) throws Exception {
         super(size);
@@ -32,18 +28,10 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
         if (!dir.exists()){
             dir.mkdirs();
         }
-        if (!cacheFile.exists() /*&& !cacheFile.isDirectory()*/){
-            File tmp = new File(dir, "tmp.txt");
+        if (!cacheFile.exists() && !cacheFile.isDirectory()){
             cacheFile.createNewFile();
         }
         writeOnDiskFlag = true;
-        /*File dir = new File("tmp/test");
-        dir.mkdirs();
-        File tmp = new File(dir, "tmp.txt");
-        tmp.createNewFile();*/
-
-        //this.inputStream = new ObjectInputStream(new FileInputStream(cacheFile));
-        //this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
     }
 
     public LRUCache() throws Exception {
@@ -53,7 +41,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     /**
      * Method to insert an object into the cache
      *
-     * @param key  key of the object in the cache
+     * @param key key of an object in the cache
      * @param data data contained by the object in the cache
      */
     @Override
@@ -69,7 +57,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
             priorityQueue.add(addedKey);
             if(writeOnDiskFlag){
                 this.outputStream = new ObjectOutputStream(new FileOutputStream(cacheFile));
-                outputStream.writeObject(cacheMap); //if write on disk is turned on
+                outputStream.writeObject(cacheMap);
                 this.outputStream.close();
             }
             return true;
@@ -81,7 +69,7 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     /**
      * Getting an object from cache by key
      *
-     * @param key key of the object in the cache
+     * @param key key of an object in the cache
      * @return data object from the cache
      */
     @SuppressWarnings("unchecked")
@@ -113,35 +101,13 @@ public class LRUCache<K, V> extends AbstractCache<K, V> implements Serializable 
     /**
      * Remove objects from cache by key
      *
-     * @param key - ключ
+     * @param key key of an object in the cache
      */
     @Override
     public void remove(K key) {
         RUKey removingKey = new RUKey(key);
         priorityQueue.remove(removingKey);
         cacheMap.remove(removingKey);
-    }
-
-    /**
-     * Remove all objects from cache
-     */
-    @Override
-    public void removeAll() {
-        priorityQueue.clear();
-        cacheMap.clear();
-    }
-
-    /**
-     * Add new data in cache
-     * Lifetime is setting by default
-     *
-     * @param map map with new data
-     */
-    @Override
-    public void addAll(Map<K, V> map) throws IOException {
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            put(entry.getKey(), entry.getValue());
-        }
     }
 
 }

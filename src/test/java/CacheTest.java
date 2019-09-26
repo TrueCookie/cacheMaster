@@ -1,44 +1,37 @@
 import cache.*;
 import junit.framework.TestCase;
-import key.Key;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-    //TODO: Can I keep in cacheMap elementary key only
 
 public class CacheTest extends TestCase {
     private Map<Integer, Object> testMap;
     private Map<Integer, Object> testMap2;
+    private File testFile;
 
-    File testFile;
-
-    private static final String simpleStr1 = "hellow";
-    private static final String simpleStr2 = "orld";
-    private static final String simpleStr3 = "iMhere";
-    private static final String simpleStr4 = "4th simple string";
-    private static final String simpleStr5 = "5th simple string";
-    private static final String simpleStr6 = "6th simple string";
-
-    private static final String testStr = "SOME CACHE DATA HERE";
+    private static final String testStr1 = "hellow";
+    private static final String testStr2 = "orld";
+    private static final String testStr3 = "iMhere";
+    private static final String testStr4 = "4th simple string";
+    private static final String testStr5 = "5th simple string";
+    private static final String testStr6 = "6th simple string";
     private static final Integer testInt1 = 600606;
-    private static final Object testObj2 = "(/¯◡ ‿ ◡)/¯ ~ ┻━┻";
-    private static final Object testObj3 = 8 + "ಠ_ಠ";
+    private static final Object testObj1 = "(/¯◡ ‿ ◡)/¯ ~ ┻━┻";
+    private static final Object testObj2 = 8 + "ಠ_ಠ";
 
     @Override
     protected void setUp() throws Exception
     {
         testMap = new HashMap<>();
-        testMap.put(1010, simpleStr1);
-        testMap.put(2020, simpleStr2);
+        testMap.put(1010, testStr1);
+        testMap.put(2020, testStr2);
 
         testMap2 = new HashMap<>();
-        testMap2.put(1010, simpleStr1);
-        testMap2.put(2020, simpleStr2);
-        testMap2.put(3030, simpleStr3);
+        testMap2.put(1010, testStr1);
+        testMap2.put(2020, testStr2);
+        testMap2.put(3030, testStr3);
 
         testFile = new File("CacheData" + File.separator + "cache");
     }
@@ -47,29 +40,6 @@ public class CacheTest extends TestCase {
     protected void tearDown() throws Exception
     {
 
-    }
-
-    @Test
-    public void testTimeLimitedCache() throws Exception
-    {
-        TimeLimitedCache<Integer, Object> defaultTimeCache = new TimeLimitedCache<>();
-        TimeLimitedCache<Integer, Object> customTimeCache = new TimeLimitedCache<>(2000);
-
-        defaultTimeCache.put(101, simpleStr1);
-
-        customTimeCache.setAll(testMap);
-        customTimeCache.runCacheExecutor();
-
-        assertTrue(testMap.containsKey(1010));
-        assertEquals(simpleStr1, customTimeCache.get(1010));
-
-        customTimeCache.put(3030, simpleStr3, 1000);
-        Thread.sleep(500);  //TODO: use lock instead of sleep
-        assertNotNull(customTimeCache.get(3030));
-        Thread.sleep(3000);
-        assertNull(customTimeCache.get(3030));
-
-        assertEquals(simpleStr1, defaultTimeCache.get(101));
     }
 
     @Test
@@ -91,11 +61,11 @@ public class CacheTest extends TestCase {
         customLRUCache.get(3030);
         Thread.sleep(500);
 
-        customLRUCache.put(4040, simpleStr4);   //cache should be full now
+        customLRUCache.put(4040, testStr4);
         assertNotNull(customLRUCache.get(4040));
         Thread.sleep(500);
 
-        customLRUCache.put(5050, simpleStr5);   //this object replace obj with key 2020
+        customLRUCache.put(5050, testStr5);
         assertNull(customLRUCache.get(2020));
         Thread.sleep(500);
 
@@ -103,7 +73,7 @@ public class CacheTest extends TestCase {
         Thread.sleep(500);
         assertNotNull(customLRUCache.get(3030));
 
-        customLRUCache.put(6060, simpleStr6);   //this object replace obj with key 5050
+        customLRUCache.put(6060, testStr6);
         assertNull(customLRUCache.get(5050));
     }
 
@@ -126,11 +96,11 @@ public class CacheTest extends TestCase {
         LRUCacheOnDisk.get(3030);
         Thread.sleep(500);
 
-        LRUCacheOnDisk.put(4040, testInt1);   //cache should be full now
+        LRUCacheOnDisk.put(4040, testInt1);
         assertEquals(600606,LRUCacheOnDisk.get(4040));
         Thread.sleep(500);
 
-        LRUCacheOnDisk.put(2000, testObj2);   //this object replace obj with key 2020
+        LRUCacheOnDisk.put(2000, testObj1);
         assertNull(LRUCacheOnDisk.get(2020));
         Thread.sleep(500);
 
@@ -138,7 +108,7 @@ public class CacheTest extends TestCase {
         Thread.sleep(500);
         assertNotNull(LRUCacheOnDisk.get(3030));
 
-        LRUCacheOnDisk.put(3000, testObj3);   //this object replace obj with key 2000
+        LRUCacheOnDisk.put(3000, testObj2);
         assertNull(LRUCacheOnDisk.get(2000));
     }
 
@@ -148,8 +118,8 @@ public class CacheTest extends TestCase {
         MRUCache<Integer, Object> defaultMRUCache = new MRUCache<>();
         MRUCache<Integer, Object> customMRUCache = new MRUCache<>(4);
 
-        defaultMRUCache.put(1111, simpleStr1);
-        assertEquals(simpleStr1 ,defaultMRUCache.get(1111));
+        defaultMRUCache.put(1111, testStr1);
+        assertEquals(testStr1,defaultMRUCache.get(1111));
 
         customMRUCache.addAll(testMap2);
 
@@ -165,19 +135,19 @@ public class CacheTest extends TestCase {
         customMRUCache.get(3030);
         Thread.sleep(500);
 
-        customMRUCache.put(4040, simpleStr4);   //cache should be full now
+        customMRUCache.put(4040, testStr4);
         assertNotNull(customMRUCache.get(4040));
         Thread.sleep(500);
 
-        customMRUCache.put(5050, simpleStr5);   //this object replace obj with key 4040
+        customMRUCache.put(5050, testStr5);
         assertNull(customMRUCache.get(4040));
         Thread.sleep(500);
 
-        assertEquals(simpleStr1 ,customMRUCache.get(1010));
+        assertEquals(testStr1,customMRUCache.get(1010));
         Thread.sleep(500);
         assertNotNull(customMRUCache.get(3030));
 
-        customMRUCache.put(6060, simpleStr6);   //this object replace obj with key 3030
+        customMRUCache.put(6060, testStr6);
         assertNull(customMRUCache.get(3030));
     }
 
@@ -196,16 +166,16 @@ public class CacheTest extends TestCase {
         customLFUCache.get(3030);
         customLFUCache.get(3030);
 
-        customLFUCache.put(4040, simpleStr4);   //cache should be full now
+        customLFUCache.put(4040, testStr4);
         assertNotNull(customLFUCache.get(4040));
 
-        customLFUCache.put(5050, simpleStr5);   //this object replace obj with key 4040
+        customLFUCache.put(5050, testStr5);
         assertNull(customLFUCache.get(4040));
 
-        assertEquals(simpleStr1 ,customLFUCache.get(1010));
+        assertEquals(testStr1,customLFUCache.get(1010));
         assertNotNull(customLFUCache.get(3030));
 
-        customLFUCache.put(6060, simpleStr6);   //this object replace obj with key 2020
+        customLFUCache.put(6060, testStr6);
         assertNull(customLFUCache.get(5050));
     }
 

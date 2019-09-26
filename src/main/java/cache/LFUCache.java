@@ -6,6 +6,9 @@ import key.LFUKey;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Cache follows the LFU Cache Policy
+ */
 public class LFUCache<K, V> extends AbstractCache<K, V> {
 
     public LFUCache(int size) throws Exception {
@@ -45,7 +48,7 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
             priorityQueue.remove(newKey);
             newKey = new LFUKey(key, getKeyPriority(newKey, cacheMap)+1);
             priorityQueue.add(newKey);
-            V oldValue = cacheMap.get(newKey);  //& now i should update key in cacheMap
+            V oldValue = cacheMap.get(newKey);
             cacheMap.remove(newKey);
             cacheMap.put(newKey, oldValue);
             return cacheMap.get(newKey);
@@ -54,7 +57,7 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
         }
     }
 
-    private long getKeyPriority(LFUKey targetKey, ConcurrentHashMap<Key,V> map){  //find oldKey by newKey with key
+    private long getKeyPriority(LFUKey targetKey, ConcurrentHashMap<Key,V> map){
         ConcurrentHashMap<Key,V> tmpMap = new ConcurrentHashMap<Key,V>(map);
         Long priority = null;
         for (Map.Entry<Key, V> entry : tmpMap.entrySet()) {
@@ -71,18 +74,5 @@ public class LFUCache<K, V> extends AbstractCache<K, V> {
         LFUKey removingKey = new LFUKey(key);
         priorityQueue.remove(removingKey);
         cacheMap.remove(removingKey);
-    }
-
-    @Override
-    public void removeAll() {
-        priorityQueue.clear();
-        cacheMap.clear();
-    }
-
-    @Override
-    public void addAll(Map<K, V> map) {
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            put(entry.getKey(), entry.getValue());
-        }
     }
 }

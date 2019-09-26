@@ -17,4 +17,9 @@ public class LFUKey extends Key {
     public long getPriority() {
         return usageFreq;
     }
+
+    @Override
+    public String toString() {
+        return "Key{" + "key=" + key + ", usageFreq=" + usageFreq + "}";
+    }
 }
